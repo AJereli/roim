@@ -37,7 +37,7 @@ BATCH_SIZE = 64
 history = model.fit(train_data, train_labels,
                     batch_size=BATCH_SIZE,
                     epochs=EPOCHS,
-                    verbose=0,
+                    verbose=1,
                     callbacks=[tensorboard, EarlyStopping(monitor='val_acc', min_delta=1e-4, patience=8)])
 
 score = model.evaluate(test_data, test_labels, batch_size=BATCH_SIZE)
