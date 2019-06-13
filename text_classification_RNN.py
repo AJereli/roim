@@ -2,7 +2,7 @@ from twitter_preproc import *
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
-from keras.layers import Activation, Dense, Dropout, Embedding, Flatten, Conv1D, MaxPooling1D, LSTM
+from keras.layers import Activation, Dense, Dropout, Embedding, LSTM
 from keras import utils
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping, TensorBoard
 import gensim
@@ -13,23 +13,18 @@ import pandas as pd
 
 
 # WORD2VEC
-W2V_SIZE = 200
+W2V_SIZE = 100
 W2V_WINDOW = 7
 W2V_EPOCH = 32
-W2V_MIN_COUNT = 10
+W2V_MIN_COUNT = 3
 
 # KERAS
-SEQUENCE_LENGTH = 200
+SEQUENCE_LENGTH = 100
 EPOCHS = 8
-BATCH_SIZE = 1024
-
-# DATASET_COLUMNS = ["target", "ids", "date", "flag", "user", "text"]
+BATCH_SIZE = 512
 DATASET_COLUMNS = ["target", "text"]
 
 dataset_path = 'datasets/twitter_train_big.csv'
-# dataset_path = 'datasets/training.1600000.processed.noemoticon.csv'
-
-# dataset_path_test = 'datasets/twitter_test.csv'
 
 DATASET_ENCODING = "ISO-8859-1"
 TRAIN_SIZE = 0.7
@@ -66,8 +61,6 @@ w2v_model = gensim.models.word2vec.Word2Vec(size=W2V_SIZE,
                                             min_count=W2V_MIN_COUNT,
                                             workers=8)
 w2v_model.build_vocab(documents)
-print(w2v_model.most_similar("like"))
-
 
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(df_train.text)
@@ -103,13 +96,13 @@ model.add(Dropout(0.5))
 model.add(LSTM(64, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(1, activation='sigmoid'))
 
-model.summary()
-
 model.compile(loss='binary_crossentropy',
               optimizer="adam",
               metrics=['accuracy'])
+model.summary()
 
-tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0,
+
+tensorboard = TensorBoard(log_dir='./logs/lstm', histogram_freq=0,
                           write_graph=True, write_images=False)
 callbacks = [ ReduceLROnPlateau(monitor='val_loss', patience=5, cooldown=0),
               EarlyStopping(monitor='val_acc', min_delta=1e-4, patience=5),
@@ -118,14 +111,14 @@ callbacks = [ ReduceLROnPlateau(monitor='val_loss', patience=5, cooldown=0),
 history = model.fit(x_train, y_train,
                     batch_size=BATCH_SIZE,
                     epochs=EPOCHS,
-                    validation_split=0.1,
+                    validation_split=0.,
                     verbose=1,
                     callbacks=callbacks)
 
 score = model.evaluate(x_test, y_test, batch_size=BATCH_SIZE)
 print()
-print("ACCURACY:",score[1])
-print("LOSS:",score[0])
+print("ACCURACY:", score[1])
+print("LOSS:", score[0])
 
 
 def predict(text, include_neutral=True):
