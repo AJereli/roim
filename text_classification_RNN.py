@@ -13,13 +13,13 @@ import pandas as pd
 
 
 # WORD2VEC
-W2V_SIZE = 300
+W2V_SIZE = 200
 W2V_WINDOW = 7
 W2V_EPOCH = 32
 W2V_MIN_COUNT = 10
 
 # KERAS
-SEQUENCE_LENGTH = 300
+SEQUENCE_LENGTH = 200
 EPOCHS = 8
 BATCH_SIZE = 1024
 
@@ -102,7 +102,7 @@ embedding_layer = Embedding(vocab_size, W2V_SIZE,
 model = Sequential()
 model.add(embedding_layer)
 model.add(Dropout(0.5))
-model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
+model.add(LSTM(64, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(1, activation='sigmoid'))
 
 model.summary()
