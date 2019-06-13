@@ -47,3 +47,5 @@ score = model.evaluate(test_data, test_labels, batch_size=BATCH_SIZE)
 print()
 print("ACCURACY:",score[1])
 print("LOSS:",score[0])
+
+model.save('mnist_cnn')

@@ -36,17 +36,13 @@ def feature_extraction(data, method = "tfidf"):
         return "Incorrect inputs"
     return features
 
+TEXT_CLEANING_RE = "@\S+|https?:\S+|http?:\S|[^A-Za-z0-9]+"
 
 def preprocess(text, stem=False):
-    # nltk.download('stopwords')
     stop_words = stopwords.words("english")
     stemmer = SnowballStemmer("english")
-    text = str(text)
-    text.lower()
-    text = re.sub('((www\.[^\s]+)|(https?://[^\s]+))', 'URL', text)
-    text = re.sub('@[^\s]+', 'AT_USER', text)
-    text = re.sub('[\s]+', ' ', text)
-    text = re.sub(r'#([^\s]+)', r'\1', text)
+
+    text = re.sub(TEXT_CLEANING_RE, ' ', str(text).lower()).strip()
     tokens = []
     for token in text.split():
         if token not in stop_words:
@@ -54,4 +50,4 @@ def preprocess(text, stem=False):
                 tokens.append(stemmer.stem(token))
             else:
                 tokens.append(token)
-    return text
+    return " ".join(tokens)

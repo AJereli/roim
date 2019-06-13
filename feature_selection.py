@@ -6,7 +6,6 @@ from sklearn.metrics import f1_score,confusion_matrix
 from sklearn.metrics import accuracy_score
 import warnings
 import numpy as np
-from sklearn.svm import SVR
 warnings.filterwarnings('ignore')
 # split data train 70 % and test 30 %
 data = load_breast_cancer()

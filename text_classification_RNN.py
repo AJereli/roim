@@ -72,7 +72,8 @@ x_train = pad_sequences(tokenizer.texts_to_sequences(df_train.text), maxlen=SEQU
 x_test = pad_sequences(tokenizer.texts_to_sequences(df_test.text), maxlen=SEQUENCE_LENGTH)
 y_train = np.array(df_train.target.tolist())
 y_test = np.array(df_test.target.tolist())
-
+y_train = y_train.reshape(-1,1)
+y_test = y_test.reshape(-1,1)
 
 print("x_train", x_train.shape)
 print("y_train", y_train.shape)
