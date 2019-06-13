@@ -52,7 +52,6 @@ df.target = df.target.apply(lambda x: labelTransform(x))
 df.text = df.text.apply(lambda x: preprocess(x))
 
 df_train, df_test = train_test_split(df, test_size=1-TRAIN_SIZE, random_state=42)
-# print(list(df_train.SentimentText))
 
 print("TRAIN size:", len(df_train))
 print("TEST size:", len(df_test))
@@ -67,7 +66,7 @@ w2v_model = gensim.models.word2vec.Word2Vec(size=W2V_SIZE,
                                             min_count=W2V_MIN_COUNT,
                                             workers=8)
 w2v_model.build_vocab(documents)
-print(w2v_model.most_similar("give"))
+print(w2v_model.most_similar("like"))
 
 
 tokenizer = Tokenizer()
@@ -128,3 +127,23 @@ score = model.evaluate(x_test, y_test, batch_size=BATCH_SIZE)
 print()
 print("ACCURACY:",score[1])
 print("LOSS:",score[0])
+
+
+def predict(text, include_neutral=True):
+    start_at = time.time()
+    # Tokenize text
+    x_test = pad_sequences(tokenizer.texts_to_sequences([text]), maxlen=SEQUENCE_LENGTH)
+    # Predict
+    score = model.predict([x_test])[0]
+    # Decode sentiment
+    label = 0 if score < 0.5 else 1
+
+    return {"label": label, "score": float(score),
+       "elapsed_time": time.time()-start_at}
+
+
+print(predict("I love the music"))
+print(predict("I hate the rain"))
+
+model.save('twi_lstm.h5')
+w2v_model.save('w2v.w2v')
