@@ -4,11 +4,11 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
 from keras.layers import Activation, Dense, Dropout, Embedding, Flatten, Conv1D, MaxPooling1D, LSTM
 from keras import utils
-from keras.callbacks import ReduceLROnPlateau, EarlyStopping
+from keras.callbacks import ReduceLROnPlateau, EarlyStopping, TensorBoard
 import gensim
 import time
 from sklearn.model_selection import train_test_split
-
+import tensorflow
 import pandas as pd
 
 
@@ -78,8 +78,8 @@ print("Total words", vocab_size)
 
 x_train = pad_sequences(tokenizer.texts_to_sequences(df_train.text), maxlen=SEQUENCE_LENGTH)
 x_test = pad_sequences(tokenizer.texts_to_sequences(df_test.text), maxlen=SEQUENCE_LENGTH)
-y_train = (df_train.target.tolist())
-y_test = (df_test.target.tolist())
+y_train = np.array(df_train.target.tolist())
+y_test = np.array(df_test.target.tolist())
 
 y_train = y_train.reshape(-1,1)
 y_test = y_test.reshape(-1,1)
@@ -111,9 +111,11 @@ model.compile(loss='binary_crossentropy',
               optimizer="adam",
               metrics=['accuracy'])
 
-
+tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0,
+                          write_graph=True, write_images=False)
 callbacks = [ ReduceLROnPlateau(monitor='val_loss', patience=5, cooldown=0),
-              EarlyStopping(monitor='val_acc', min_delta=1e-4, patience=5)]
+              EarlyStopping(monitor='val_acc', min_delta=1e-4, patience=5),
+              tensorboard]
 
 history = model.fit(x_train, y_train,
                     batch_size=BATCH_SIZE,
